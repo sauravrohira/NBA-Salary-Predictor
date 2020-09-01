@@ -1,20 +1,6 @@
 from urllib.request import urlopen
 from bs4 import BeautifulSoup
 import pandas as pd
-import unicodedata
-
-
-def strip_accents(text):
-
-    try:
-        text = unicode(text, 'utf-8')
-    except NameError:  # unicode is a default on python 3
-        pass
-
-    text = unicodedata.normalize('NFD', text)\
-        .encode('ascii', 'ignore')\
-        .decode("utf-8")
-    return str(text)
 
 # NBA season we will be analyzing
 years = list(range(2010, 2021))
@@ -38,7 +24,6 @@ for year in years:
             headers = [th.getText() for th in soup.findAll('tr', limit=2)[0].findAll('th', )]
         # exclude the first column as we will not need the ranking order from Basketball Reference for the analysis
         headers = headers[1:]
-        print(headers)
         # avoid the first header row
         rows = soup.findAll('tr', {"class" : "full_table"})[0:]
         player_stats = [[td.getText() for td in rows[i].find_all('td', class_=lambda x: x != 'right iz')] for i in range(len(rows))]
@@ -48,20 +33,24 @@ for year in years:
         elif u == "advanced":
             stats_adv = pd.DataFrame(player_stats, columns=headers)
         else:
-            stats_pbp = pd.DataFrame(player_stats, columns=headers)
+            stats_pbp = pd.DataFrame([row[:11] for row in player_stats], columns=headers[:11])
 
     def drop_y(df):
         # list comprehension of the cols that end with '_y'
         to_drop = [x for x in df if x.endswith('_y')]
         df.drop(to_drop, axis=1, inplace=True)
-    stats = pd.merge(stats_reg, stats_adv, on='Player', suffixes=['', '_y'])
+
+    stats = pd.merge(stats_pbp, stats_reg, on='Player', suffixes=['', '_y'])
     drop_y(stats)
-    stats = pd.merge(stats, stats_pbp, on='Player', suffixes=['', '_y'])
+    stats = pd.merge(stats, stats_adv, on='Player', suffixes=['', '_y'])
     drop_y(stats)
-    stats.drop(columns=['\xa0', ])
-    stats.fillna(0.0, inplace=True)
-    stats['Player'] = stats['Player'].apply(lambda x: strip_accents(x))
-    stats.dro
+    stats.drop([stats.columns[41],stats.columns[46]], axis=1, inplace=True)
+    stats['PG%'] = stats['PG%'].apply(lambda x: x[:-1])
+    stats['SG%'] = stats['SG%'].apply(lambda x: x[:-1])
+    stats['SF%'] = stats['SF%'].apply(lambda x: x[:-1])
+    stats['PF%'] = stats['PF%'].apply(lambda x: x[:-1])
+    stats['C%'] = stats['C%'].apply(lambda x: x[:-1])
+    stats.replace('', 0.0, inplace=True)
     stats.to_csv("./player_stats/{}-{}.csv".format(year-1,year))
     print("{} Done!".format(year))
 
