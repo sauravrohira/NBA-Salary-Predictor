@@ -49,7 +49,7 @@ years = list(range(2010,2021))
 for year in years:
     stats = pd.read_csv('player_stats/{}-{}.csv'.format(year-1,year))
     stats.drop(stats.columns[0], axis=1, inplace=True)
-    salaries = pd.read_csv('player_salaries2/{}-{}.csv'.format(year-1, year))
+    salaries = pd.read_csv('player_salaries/{}-{}.csv'.format(year-1, year))
     salaries.drop(salaries.columns[0], axis=1, inplace=True)
     # salaries.drop('Team', axis=1, inplace=True)
     info = pd.read_csv('player_info/{}-{}.csv'.format(year-1, year))
@@ -62,11 +62,6 @@ for year in years:
     fix_typos(stats, info)
     fix_typos(salaries, info)
 
-    l1 = sorted(non_intersect(stats['Player'].tolist(), salaries['Player'].tolist()))
-
-    salaries = pd.read_csv('player_salaries/{}-{}.csv'.format(year-1, year))
-    salaries.drop(salaries.columns[0], axis=1, inplace=True)
-    
-    l1 = sorted(non_intersect(l1, salaries['Player'].tolist()))
-    print('{}-missing-salaries: {}'.format(year, len(l1)))
-    print(l1)
+    stats.to_csv('player_stats/{}-{}.csv'.format(year-1,year))
+    salaries.to_csv('player_salaries/{}-{}.csv'.format(year-1, year))
+    info.to_csv('player_info/{}-{}.csv'.format(year-1, year))
