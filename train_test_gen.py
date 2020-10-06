@@ -11,6 +11,7 @@ for year in years:
     salaries.drop(salaries.columns[0], axis=1, inplace=True)
     info = pd.read_csv('player_info/{}-{}.csv'.format(year-1, year))
     info.drop(info.columns[0], axis=1, inplace=True)
+    info.drop('Unnamed: 0.1', axis=1, inplace=True)
     df = pd.merge(stats, info, on='Player')
     df = pd.merge(df, salaries, on='Player')
     final_df = final_df.append(df, ignore_index=True)
@@ -19,7 +20,7 @@ final_df.drop(columns=['Pos','Tm','College','USA','DraftRound','DraftNum', 'Sala
 train_test_X = final_df[final_df.Season != 2020].drop(columns=['Player','Salary(%)'])
 
 train_test_y = final_df[final_df.Season != 2020].drop(columns=final_df.columns[:len(final_df.columns)-1])
-names_final = final_df[final_df.Season == 2020].drop(columns=final_df.columns[1:len(final_df.columns)])
+names_final = final_df[final_df.Season == 2020].drop(columns=final_df.columns[1:len(final_df.columns)-1])
 X_final = final_df[final_df.Season == 2020].drop(columns=['Player','Salary(%)'])
 y_final = final_df[final_df.Season == 2020].drop(columns=(final_df.columns[:len(final_df.columns)-1]))
 

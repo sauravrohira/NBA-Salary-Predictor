@@ -40,7 +40,7 @@ for year in years:
         to_drop = [x for x in df if x.endswith('_y')]
         df.drop(to_drop, axis=1, inplace=True)
 
-    stats = pd.merge(stats_pbp, stats_reg, on='Player', suffixes=['', '_y'])
+    stats = pd.merge(stats_pbp, stats_reg, on='Player', suffixes=['_y', ''])
     drop_y(stats)
     stats = pd.merge(stats, stats_adv, on='Player', suffixes=['', '_y'])
     drop_y(stats)
